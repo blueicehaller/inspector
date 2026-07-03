@@ -68,7 +68,9 @@
         }
     }
 
-    // Status-specific styles
+    // Status-specific styles — class names mirror the canonical Assistant
+    // Capability States exposed by AssistantController. No translation
+    // table between controller status and CSS class.
     &.status-ready {
         background-color: fade(@lighter-blue, 20%);
         border-color: @border-gray-lighter;
@@ -78,7 +80,7 @@
         }
     }
 
-    &.status-needs-download {
+    &.status-downloadable {
         background-color: fade(@purple, 15%);
         border-color: @border-gray-lighter;
 
@@ -97,8 +99,28 @@
         }
     }
 
+    // Recoverable session failure: framed as a warning, not a terminal
+    // error, because the developer can recover via clear-history or a
+    // controller-driven reseed on the next clearConversation()/setUrl().
+    &.status-session-failed,
+    &.status-streaming-failed {
+        background-color: fade(@red, 15%);
+        border-color: @border-gray-lighter;
+
+        .status-indicator {
+            background-color: @red;
+        }
+
+        .status-text {
+            white-space: pre-line;
+            font-size: 11px;
+        }
+    }
+
+    // Terminal unavailability: local AI cannot serve prompts in this
+    // environment regardless of developer action.
     &.status-unavailable,
-    &.status-error {
+    &.status-unsupported {
         background-color: fade(@red-saturated, 15%);
         border-color: @border-gray-lighter;
 
@@ -414,6 +436,20 @@
     align-items: flex-end;
 }
 
+// Inline error slot: muted red single-line status placed above the input row for transient
+// action failures (streaming failure, clear-history failure, clipboard failure). Hidden until an
+// error is set; hides again on the next input activity. Not a banner — no border, no background.
+.ai-error-slot {
+    color: @red-saturated;
+    font-size: 12px;
+    line-height: 1.4;
+    padding: 4px 4px 6px;
+
+    &[hidden] {
+        display: none;
+    }
+}
+
 .ai-input {
     flex: 1;
     padding: 10px 12px;
@@ -468,16 +504,29 @@
 
 .token-counter {
     font-size: 12px;
-    color: @gray-dark;
+    color: @gray-darkest;
     font-weight: 500;
     padding: 4px 8px;
     background-color: fade(@gray, 10%);
     border-radius: 4px;
 
+    &[hidden] {
+        display: none;
+    }
+
     &.warning {
+        color: @amber;
+        background-color: fade(@amber, 10%);
+    }
+
+    &.warning-critical {
         color: @red-saturated;
         background-color: fade(@red-saturated, 10%);
-        font-weight: 600;
+    }
+
+    &.quota-exhausted {
+        color: @red-dark;
+        background-color: fade(@red-dark, 10%);
     }
 }
 
